@@ -5,16 +5,18 @@ using PyCall, PyPlot
 const pb = PyNULL()
 const pb_repo = PyNULL()
 const pb_graphene = PyNULL()
-const model = PyNULL()
-const solver = PyNULL()
-export pb, pb_repo, pb_graphene, model, solver
+const pb_model = PyNULL()
+const pb_solver = PyNULL()
+const pb_lattice = PyNULL()
+export pb, pb_repo, pb_graphene, pb_model, pb_solver, pb_lattice
 
 function __init__()
     copy!(pb, pyimport("pybinding"))
     copy!(pb_repo, pyimport("pybinding.repository"))
     copy!(pb_graphene, pyimport("pybinding.repository.graphene"))
-    copy!(model, pb.Model)
-    copy!(solver, pb.solver.lapack)
+    copy!(pb_model, pb.Model)
+    copy!(pb_solver, pb.solver.lapack)
+    copy!(pb_lattice, pb.Lattice)
 end
 
 include("tb_model.jl")

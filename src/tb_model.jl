@@ -1,5 +1,4 @@
 
-function band_structure(PyObject)
+function band_structure()
     
-
 end
