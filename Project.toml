@@ -1,0 +1,8 @@
+name = "tb_dsm"
+uuid = "127603b9-8700-46ea-8322-b819932eaf4e"
+authors = ["Ali Ghorashi <aligho@mit.edu>"]
+version = "0.1.0"
+
+[deps]
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
