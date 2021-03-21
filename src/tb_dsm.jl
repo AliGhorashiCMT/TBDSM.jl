@@ -30,10 +30,10 @@ include("tb_model.jl")
 export make_lattice, plot_bands
 
 include("tb_2d_dielectric.jl")
-export 2d_impol, 2d_realeps
+export impol_2d, realeps_2d
 
 include("tb_3d_dielectric.jl")
-export 3d_impol, 3d_realeps
+export impol_3d, realeps_3d
 
 include("tb_specific_examples.jl")
 export graphene_bands, bilayer_graphene_bands, tmd_mo_s2, graphene_impol, graphene_realeps, read_grapheneplasmon
