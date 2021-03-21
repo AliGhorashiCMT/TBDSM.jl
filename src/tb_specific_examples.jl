@@ -66,7 +66,16 @@ end
 
 function read_grapheneplasmon()
     read_plasmon = readdlm(joinpath(@__DIR__, "../data/grapheneplasmon.txt"), '\t', Float64, '\n')
-    return read_plasmon
+    return transpose(read_plasmon)
+end
+
+function read_grapheneplasmonline()
+    read_plasmon = read_grapheneplasmon()
+    plasmon = []
+    for i in 1:50
+        push!(plasmon, argmin(read_plasmon[:, i])*2/96)
+    end
+    return plasmon
 end
 
 function graphene_realeps(qx::Real, qy::Real, ωs::Array{<:Real, 1}, μ::Real; mesh::Real=300, histogram_width::Real=10, max_energy_integration::Real=20, kwargs...) 
