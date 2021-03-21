@@ -65,8 +65,7 @@ function graphene_realeps(qx::Real, qy::Real, ω::Real, μ::Real; mesh::Real=300
 end
 
 function read_grapheneplasmon()
-    read_plasmon = readdlm("../data/grapheneplasmon.txt", '\t', Float64, '\n')
-    heatmap(read_plasmon)
+    read_plasmon = readdlm(joinpath(@__DIR__, "../data/grapheneplasmon.txt"), '\t', Float64, '\n')
     return read_plasmon
 end
 
