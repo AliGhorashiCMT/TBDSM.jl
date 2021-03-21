@@ -14,9 +14,11 @@ end
 
 function graphene_impol(qx::Real, qy::Real, μ::Real;mesh::Int=10, histogram_width::Real=100)
 
+    qx = qx*10
+    qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*30)
     b1, b2 = pb_graphene.monolayer().reciprocal_vectors()
-    bzone_area = abs(cross(b1, b2)[3])
+    bzone_area = abs(cross(b1, b2)[3])/100 ## Brillouin zone area in inverse angstrom squared
     graphene_mod = pb_model(pb_graphene.monolayer(), pb.translational_symmetry())
     graphene_solver = pb_solver(graphene_mod)
     for xiter in 1:mesh
@@ -47,6 +49,40 @@ function graphene_impol(qx::Real, qy::Real, μ::Real;mesh::Int=10, histogram_wid
         end
     end
     return im_pols
+end
+
+function graphene_realeps(qx::Real, qy::Real, ω::Real, μ::Real; mesh::Real=300, histogram_width::Real=10, max_energy_integration::Real=20, kwargs...) 
+    
+    q=abs(sqrt(qx^2+qy^2))
+    im_pol = graphene_impol(qx, qy, μ, mesh=mesh, histogram_width=histogram_width)
+
+    interpolated_ims=interpol.interp1d(0:1/histogram_width:(30-1/histogram_width), im_pol)
+        
+    ErrorAbs=1e-20
+    cauchy_inner_function(omegaprime)=2/pi*interpolated_ims(omegaprime)*omegaprime/(omegaprime+ω)
+    
+    return 1-90.5/q*pyintegrate.quad(cauchy_inner_function, 0, max_energy_integration, weight="cauchy",  epsrel=ErrorAbs, epsabs=ErrorAbs, limit=75,  wvar= ω ; kwargs...)[1]
+end
+
+function read_grapheneplasmon()
+    read_plasmon = readdlm("../data/grapheneplasmon.txt", '\t', Float64, '\n')
+    heatmap(read_plasmon)
+    return read_plasmon
+end
+
+function graphene_realeps(qx::Real, qy::Real, ωs::Array{<:Real, 1}, μ::Real; mesh::Real=300, histogram_width::Real=10, max_energy_integration::Real=20, kwargs...) 
+    q=abs(sqrt(qx^2+qy^2))
+    im_pol = graphene_impol(qx, qy, μ, mesh=mesh, histogram_width=histogram_width)
+
+    interpolated_ims=interpol.interp1d(0:1/histogram_width:(30-1/histogram_width), im_pol)
+    epsilons = zeros(length(ωs))
+    ErrorAbs=1e-20
+    for (index, ω) in enumerate(ωs)
+        cauchy_inner_function(omegaprime)=2/pi*interpolated_ims(omegaprime)*omegaprime/(omegaprime+ω)
+    
+        epsilons[index] = 1-90.5/q*pyintegrate.quad(cauchy_inner_function, 0, max_energy_integration, weight="cauchy",  epsrel=ErrorAbs, epsabs=ErrorAbs, limit=75,  wvar= ω ; kwargs...)[1]
+    end
+    return epsilons
 end
 
 function bilayer_graphene_bands()
