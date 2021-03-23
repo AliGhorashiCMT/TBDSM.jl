@@ -36,6 +36,7 @@ include("tb_3d_dielectric.jl")
 export impol_3d, realeps_3d
 
 include("tb_specific_examples.jl")
-export graphene_bands, bilayer_graphene_bands, tmd_mo_s2, graphene_impol, graphene_realeps, read_grapheneplasmon
+export graphene_bands, bilayer_graphene_bands, tmd_mo_s2, graphene_impol, graphene_realeps, 
+read_grapheneplasmon, read_grapheneplasmonline, read_levitov_tbgrapheneplasmon
 
 end # module
