@@ -7,9 +7,9 @@ A Julia interface with Pybinding for tight binding calculations. The primary pur
 
 ## Installation 
 ```julia
-pkg> add https://github.com/thchr/Crystalline.jl
+pkg> add https://github.com/AliGhorashiCMT/tb_dsm.jl
 ```
-which will make Crystalline.jl available via 
+which will allow access via
 ```julia
-julia> using Crystalline
+julia> using tb_dsm
 ```
