@@ -1,0 +1,26 @@
+codecov: true
+coveralls: true
+
+language: julia
+os:
+  - linux
+  #- osx
+  #- windows
+julia:
+  - nightly
+  - 1.5.2
+  - 1.6
+jobs:
+  allow_failures:
+  #- os: windows, osx
+  - julia: nightly
+matrix: 
+  - PYTHON=Conda-python
+    #allow_failures: 
+    #  - julia: nightly
+    #  - julia: 1.0.6
+    #  - julia: 1.5.2
+script:
+  - julia --project --check-bounds=yes -e 'import Pkg; ENV["PYTHON"]=""; Pkg.add("PyCall"); Pkg.build("PyCall"); Pkg.build(); Pkg.test("tb_dsm"; coverage=true)'
+notifications:
+  email = true
