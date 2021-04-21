@@ -1,6 +1,6 @@
 [![Build status][ci-status-img]][ci-status-url]
 
-# tb_dsm.jl
+# TBDSM.jl
 
 ## Tight Binding Dielectric Solving Module
 
