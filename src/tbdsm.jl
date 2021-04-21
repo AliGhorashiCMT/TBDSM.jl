@@ -1,6 +1,6 @@
-module tb_dsm
+module TBDSM
 #Dependencies
-using PyCall, PyPlot, LinearAlgebra, DelimitedFiles
+using PyCall, PyPlot, LinearAlgebra, DelimitedFiles, DocStringExtensions
 
 const pb = PyNULL()
 const pb_repo = PyNULL()

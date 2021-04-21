@@ -13,7 +13,6 @@ function heaviside(x::Real)
 end
 
 function graphene_impol(qx::Real, qy::Real, μ::Real;mesh::Int=10, histogram_width::Real=100)
-
     qx = qx*10
     qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*30)
