@@ -9,6 +9,7 @@ function graphene_bands()
     K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
     graphene_mod = pb_model(pb_graphene.monolayer(), pb.translational_symmetry())
     pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).plot()
+    plt.show()
 end
 
 """
@@ -110,16 +111,25 @@ function tbgraphene_realeps(qx::Real, qy::Real, ω::Real; μ::Real=1.81e-3, mesh
     return 1-90.5/(12.12*q)*pyintegrate.quad(cauchy_inner_function, 0, max_energy_integration, weight="cauchy",  epsrel=ErrorAbs, epsabs=ErrorAbs, limit=75,  wvar= ω ; kwargs...)[1]
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_grapheneplasmon()
     read_plasmon = readdlm(joinpath(@__DIR__, "../data/grapheneplasmon.txt"), '\t', Float64, '\n')
     return transpose(read_plasmon)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_levitov_tbgrapheneplasmon()
     read_plasmon = readdlm(joinpath(@__DIR__, "../data/levitov_tbgraphene.txt"), '\t', Float64, '\n')
     return transpose(read_plasmon)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_grapheneplasmonline()
     read_plasmon = read_grapheneplasmon()
     plasmon = []
@@ -129,6 +139,9 @@ function read_grapheneplasmonline()
     return plasmon
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function graphene_realeps(qx::Real, qy::Real, ωs::Array{<:Real, 1}, μ::Real; mesh::Real=300, histogram_width::Real=10, max_energy_integration::Real=20, kwargs...) 
     q=abs(sqrt(qx^2+qy^2))
     im_pol = graphene_impol(qx, qy, μ, mesh=mesh, histogram_width=histogram_width)
@@ -142,6 +155,9 @@ function graphene_realeps(qx::Real, qy::Real, ωs::Array{<:Real, 1}, μ::Real; m
     return epsilons
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function tbgraphene_realeps(qx::Real, qy::Real, ωs::Array{<:Real, 1}; μ::Real=1.81e-3, mesh::Real=300, histogram_width::Real=10000, max_energy_integration::Real=.2, kwargs...) 
     q=abs(sqrt(qx^2+qy^2))
     im_pol = levitov_tbgraphene_impol(qx, qy, mesh=mesh, histogram_width=histogram_width)
@@ -155,6 +171,9 @@ function tbgraphene_realeps(qx::Real, qy::Real, ωs::Array{<:Real, 1}; μ::Real=
     return epsilons
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function bilayer_graphene_bands()
     a_cc=pb_graphene.a_cc
     Gamma = [0, 0]
@@ -163,14 +182,21 @@ function bilayer_graphene_bands()
     K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
     graphene_mod = pb_model(pb_graphene.bilayer(), pb.translational_symmetry())
     pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).plot()
+    plt.show()
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function tmd_mo_s2()
     mos2_mod = pb_model(pb_mos2, pb.translational_symmetry())
     kpoints1, kpoints2, kpoints3 = [0, 0], mos2_mod.lattice.brillouin_zone()[1], mos2_mod.lattice.brillouin_zone()[2]
     pb_solver(mos2_mod).calc_bands(kpoints1, kpoints2, kpoints3).plot()
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function levitov_tbg_model()
     a = 13.4   # [nm] unit cell length
     a_cc = a/sqrt(3)  # [nm] carbon-carbon distance

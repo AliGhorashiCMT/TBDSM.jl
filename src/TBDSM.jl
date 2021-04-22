@@ -25,6 +25,7 @@ function __init__()
     copy!(pyintegrate, pyimport_conda("scipy.integrate", "scipy"))
     copy!(interpol, pyimport_conda("scipy.interpolate", "scipy"))
     
+    matplotlib.use("TkAgg") # Necessary to have a gui capable backend
     #copy!(pb, pyimport("pybinding"))
     #copy!(pb_repo, pyimport("pybinding.repository"))
     #copy!(pb_graphene, pyimport("pybinding.repository.graphene"))
@@ -40,7 +41,7 @@ include("tb_model.jl")
 export make_lattice, plot_bands
 
 include("tb_2d_dielectric.jl")
-export impol_2d, realeps_2d
+export impol_2d, realeps_2d, realepses_2d
 
 include("tb_3d_dielectric.jl")
 export impol_3d, realeps_3d
