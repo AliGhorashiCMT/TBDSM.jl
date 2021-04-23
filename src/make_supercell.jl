@@ -90,10 +90,70 @@ function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     end
     println("Total number of hoppings (check): ", totalnumhops)
     supermodel = pb_model(lat, pb.translational_symmetry())
-    supermodel.plot(site=Dict("radius" =>1))
-    plt.savefig("lat.png")
-    plt.close()
+    #supermodel.plot(site=Dict("radius" =>1))
+    #plt.savefig("lat.png")
+    #plt.close()
+    return supermodel
 end
+
+function make_supercellbands(supercellmult::Integer)
+    N = supercellmult
+    println("Supercell bands for multiplicity: ", N)
+    oned_lat = pb_lattice([1])
+    oned_lat.add_sublattices(("A", [0, 0]))
+    oned_lat.add_hoppings(([1], "A", "A", 1))
+    oned_mod = pb_model(oned_lat, pb.translational_symmetry())
+    Energies = Array{Float64, 2}(undef, (length(-π/N:π/(100*N):π/N), N))
+    for (kindex, x) in enumerate(-π/N:π/(100*N):π/N)
+        for n in 1:N
+            oned_solver = pb_solver(oned_mod)
+            oned_solver.set_wave_vector(x+(n-1)*2π/N)
+            Energies[kindex, n] = oned_solver.eigenvalues[1]
+        end
+    end
+    return Energies
+end
+
+function make_graphenesupercellbands(supercellmult::Integer)
+    N = supercellmult
+    println("Supercell bands for multiplicity: ", N)
+
+    lat = pb_lattice([1, 0], [1/2, 1/2*sqrt(3)])
+    lat.add_sublattices(
+        ("A", [0, -1/(2*sqrt(3))]),
+        ("B", [0,  1/(2*sqrt(3))])
+    )
+    lat.add_hoppings(
+        ([0,  0], "A", "B", 1),
+        ([1, -1], "A", "B", 1),
+        ([0, -1], "A", "B", 1))
+    
+    K2 = [2*pi / (3), 2*pi / sqrt(3)]
+    M = [0, 2π/sqrt(3)]
+    K1 = [-4π/3, 0]
+    kpath = pb.make_path(K1, [0, 0], M, K2, [0, 0], -K1,  step=0.02)
+    graphene_mod = pb_model(lat, pb.translational_symmetry())
+    Energies = Array{Float64, 2}(undef, (size(kpath)[1], 2N^2))
+    b1, b2 = lat.reciprocal_vectors()
+    b1 *= 1/N
+    b2 *= 1/N
+    println(b1, b2)
+    for (kindex, x) in enumerate(eachrow(kpath))
+        k = collect(x)
+        allsups = Array{Float64, 3}(undef, (N, N, 2))
+        for nx in 0:N-1
+            for ny in 0:N-1
+                solver = pb_solver(graphene_mod)
+                solver.set_wave_vector(k.+nx*b1[1:2].+ny*b2[1:2])
+                allsups[nx+1, ny+1, 1] = solver.eigenvalues[1]
+                allsups[nx+1, ny+1, 2] = solver.eigenvalues[2]
+            end
+        end
+        Energies[kindex, :] = reshape(allsups, 2N^2)
+    end
+    return Energies
+end
+
 
 function return_superhoppings(superid::Vector{<:Integer}, hopping::Vector{<:Integer}, supercell::Vector{<:Integer})
     supercellhopping = div.((hopping+superid), supercell, RoundDown)

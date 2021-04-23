@@ -25,7 +25,7 @@ function __init__()
     copy!(pyintegrate, pyimport_conda("scipy.integrate", "scipy"))
     copy!(interpol, pyimport_conda("scipy.interpolate", "scipy"))
     
-    matplotlib.use("TkAgg") # Necessary to have a gui capable backend
+    #matplotlib.use("TkAgg") # Necessary to have a gui capable backend
     #copy!(pb, pyimport("pybinding"))
     #copy!(pb_repo, pyimport("pybinding.repository"))
     #copy!(pb_graphene, pyimport("pybinding.repository.graphene"))
@@ -51,6 +51,6 @@ export graphene_bands, bilayer_graphene_bands, tmd_mo_s2, graphene_impol, graphe
 read_grapheneplasmon, read_grapheneplasmonline, read_levitov_tbgrapheneplasmon
 
 include("make_supercell.jl")
-export make_supercell, make_supercell2
+export make_supercell, make_supercell2, make_supercellbands, make_graphenesupercellbands
 
 end # module
