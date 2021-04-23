@@ -1,3 +1,6 @@
+"""
+$(TYPEDSIGNATURES)
+"""
 function make_supercell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, cell_mult::Vector{<:Integer}, d::Real )
     plt.close()
     newvecs = lat_vectors.*cell_mult
@@ -15,7 +18,6 @@ function make_supercell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vect
             end
         end
     end
-
     for (index1, sublattice1) in enumerate(sublattices)
     for x1 in 0:cell_mult[1]-1
         for y1 in 0:cell_mult[2]-1
