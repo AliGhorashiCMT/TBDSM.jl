@@ -3,4 +3,5 @@ Manifest.toml
 *.vscode
 *.pdf
 .DS_Store
-
+*.png
+*/*.png
