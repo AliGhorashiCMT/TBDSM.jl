@@ -96,6 +96,58 @@ function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     return supermodel
 end
 
+function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, defectenergy::Real, defecthop::Real )
+    @assert length(sublattices) == length(sublatonsite)
+    plt.close()
+    newvecs = lat_vectors.*cell_mult
+    println(newvecs[1])
+    lat = pb_lattice(newvecs...) # pybinding lattice with superlattice vectors
+    for x in 0:cell_mult[1]-1
+        for y in 0:cell_mult[2]-1
+            for (index, sublattice) in enumerate(sublattices)
+                try
+                (x==0 && y==0 && index==1) ? lat.add_sublattices(("$(sublattice[1])$(x)$(y)", sum(lat_vectors.*[x, y])+sublattice[2], defectenergy )) : lat.add_sublattices(("$(sublattice[1])$(x)$(y)", sum(lat_vectors.*[x, y])+sublattice[2], sublatonsite[index] ))
+                catch e
+                    println(e)
+                    println("exception")
+                end
+            end
+        end
+    end
+    totalnumhops = 0
+    for (index1, sublattice1) in enumerate(sublattices)
+        for x1 in 0:cell_mult[1]-1
+            for y1 in 0:cell_mult[2]-1
+                for hop in hops
+                    if hop[1] == index1 
+                        a, b = return_superhoppings([x1, y1], hop[3], cell_mult)
+                        secondsub = sublattices[hop[2]][1]
+                        try
+                            ("$(sublattice1[1])$(x1)$(y1)" == sublattices[1][1]*"00" ||  "$(secondsub)$(a...)" == sublattices[1][1]*"00") ? println("Making defect hopping\n") : nothing
+                            ("$(sublattice1[1])$(x1)$(y1)" == sublattices[1][1]*"00" ||  "$(secondsub)$(a...)" == sublattices[1][1]*"00") ? lat.add_hoppings((b, "$(sublattice1[1])$(x1)$(y1)", "$(secondsub)$(a...)", defecthop)) : lat.add_hoppings((b, "$(sublattice1[1])$(x1)$(y1)", "$(secondsub)$(a...)", hop[4]))
+                            totalnumhops +=1
+                        catch
+                            println("some error")
+                            @warn "some error"
+                        end
+                    else
+                        continue
+                    end
+                end
+            end
+        end
+    end
+    println("Total number of hoppings (check): ", totalnumhops)
+    supermodel = pb_model(lat, pb.translational_symmetry())
+    #supermodel.plot(site=Dict("radius" =>1))
+    #plt.savefig("lat.png")
+    #plt.close()
+    return supermodel
+end
+
+
+
+
 function make_supercellbands(supercellmult::Integer)
     N = supercellmult
     println("Supercell bands for multiplicity: ", N)
