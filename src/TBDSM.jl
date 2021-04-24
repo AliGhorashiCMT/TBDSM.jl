@@ -59,4 +59,10 @@ export make_random_lattice
 include("model_plothelp.jl")
 export plot_defectmodel
 
+include("wfns_densities.jl")
+
+include("dos.jl")
+export dos
+
+
 end # module

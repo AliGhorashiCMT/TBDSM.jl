@@ -139,15 +139,34 @@ function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     end
     println("Total number of hoppings (check): ", totalnumhops)
     supermodel = pb_model(lat, pb.translational_symmetry())
-    #supermodel.plot(site=Dict("radius" =>1))
-    #plt.savefig("lat.png")
-    #plt.close()
     return supermodel
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
+function make_onedsupercell(supercellmult::Integer)
+    N = supercellmult
+    println("Supercell bands for multiplicity: ", N)
+    oned_lat = pb_lattice([N])
+    oned_lat.add_sublattices([("A$(n)", n) for n in 0:N-1]...) #Add all atoms within unit cell
+    oned_lat.add_hoppings([([0], "A$(n-1)", "A$(n)", 1) for n in 1:N-1]...) #Add all intra unit cell hoppings
+    oned_lat.add_hoppings(([-1], "A0", "A$(N-1)", 1)) #Add the one inter unit cell hopping
+    oned_mod = pb_model(oned_lat, pb.translational_symmetry())
+    Energies = Array{Float64, 2}(undef, (length(-π/N:π/(100*N):π/N), N))
+    Eigenvectors = Array{ComplexF64, 3}(undef, (length(-π/N:π/(100*N):π/N), N, N)) #N component eigenvectors and N bands 
+    for (kindex, x) in enumerate(-π/N:π/(100*N):π/N) #Only look at first Brillouin Zone
+        oned_solver = pb_solver(oned_mod)
+        oned_solver.set_wave_vector(x)
+        Energies[kindex, :] = oned_solver.eigenvalues
+        Eigenvectors[kindex, :, :] = oned_solver.eigenvectors
+    end
+    return Energies, Eigenvectors
+end
 
-
-
+"""
+$(TYPEDSIGNATURES)
+"""
 function make_supercellbands(supercellmult::Integer)
     N = supercellmult
     println("Supercell bands for multiplicity: ", N)
@@ -205,7 +224,6 @@ function make_graphenesupercellbands(supercellmult::Integer)
     end
     return Energies
 end
-
 
 function return_superhoppings(superid::Vector{<:Integer}, hopping::Vector{<:Integer}, supercell::Vector{<:Integer})
     supercellhopping = div.((hopping+superid), supercell, RoundDown)
