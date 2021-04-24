@@ -53,4 +53,10 @@ read_grapheneplasmon, read_grapheneplasmonline, read_levitov_tbgrapheneplasmon
 include("make_supercell.jl")
 export make_supercell, make_supercell2, make_supercellbands, make_graphenesupercellbands
 
+include("finite_systems.jl")
+export make_random_lattice
+
+include("model_plothelp.jl")
+export plot_defectmodel
+
 end # module
