@@ -60,7 +60,7 @@ include("model_plothelp.jl")
 export plot_defectmodel
 
 include("wfns_densities.jl")
-export plot_density
+export plot_density, plot_wfn
 
 include("dos.jl")
 export dos
