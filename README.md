@@ -15,5 +15,8 @@ which will allow access via
 ```julia
 julia> using tb_dsm
 ```
-[ci-status-url]: https://travis-ci.com/github/AliGhorashiCMT/tb_dsm.jl
-[ci-status-img]: https://travis-ci.com/AliGhorashiCMT/tb_dsm.jl.svg?branch=master
+<!--[ci-status-url]: https://travis-ci.com/github/AliGhorashiCMT/tb_dsm.jl
+[ci-status-img]: https://travis-ci.com/AliGhorashiCMT/tb_dsm.jl.svg?branch=master -->
+
+[ci-status-img]:   https://github.com/AliGhorashiCMT/TBDSM.jl/workflows/CI/badge.svg
+[ci-status-url]:   https://github.com/AliGhorashiCMT/TBDSM.jl/actions
