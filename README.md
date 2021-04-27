@@ -1,4 +1,4 @@
-[![Build status][ci-status-img]][ci-status-url]
+[![Build status][ci-status-img]][ci-status-url] [![Coverage][codecov-img]][codecov-url]
 
 # TBDSM.jl
 
@@ -20,3 +20,6 @@ julia> using tb_dsm
 
 [ci-status-img]:   https://github.com/AliGhorashiCMT/TBDSM.jl/workflows/CI/badge.svg
 [ci-status-url]:   https://github.com/AliGhorashiCMT/TBDSM.jl/actions
+
+[codecov-url]: https://app.codecov.io/gh/AliGhorashiCMT/TBDSM.jl
+[codecov-img]: https://codecov.io/gh/TBDSM/branch/master/graph/badge.svg
