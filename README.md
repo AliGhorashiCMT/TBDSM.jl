@@ -1,4 +1,4 @@
-[![Build status][ci-status-img]][ci-status-url]
+[![Build status][ci-status-img]][ci-status-url] [![Coverage][codecov-img]][codecov-url]
 
 # TBDSM.jl
 
@@ -15,5 +15,11 @@ which will allow access via
 ```julia
 julia> using tb_dsm
 ```
-[ci-status-url]: https://travis-ci.com/github/AliGhorashiCMT/tb_dsm.jl
-[ci-status-img]: https://travis-ci.com/AliGhorashiCMT/tb_dsm.jl.svg?branch=master
+<!--[ci-status-url]: https://travis-ci.com/github/AliGhorashiCMT/tb_dsm.jl
+[ci-status-img]: https://travis-ci.com/AliGhorashiCMT/tb_dsm.jl.svg?branch=master -->
+
+[ci-status-img]:   https://github.com/AliGhorashiCMT/TBDSM.jl/workflows/CI/badge.svg
+[ci-status-url]:   https://github.com/AliGhorashiCMT/TBDSM.jl/actions
+
+[codecov-url]: https://app.codecov.io/gh/AliGhorashiCMT/TBDSM.jl
+[codecov-img]: https://codecov.io/gh/TBDSM/branch/master/graph/badge.svg
