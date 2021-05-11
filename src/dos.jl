@@ -107,8 +107,9 @@ function dos(model::PyCall.PyObject, ::Val{2}; mesh=100, histogram_width=100)
     mine, maxe = minimum(all_energies), maximum(all_energies)
     println(mine, " ", maxe)
     totlength = Int(round((maxe-mine)*histogram_width))+1
-    E_ARRAY = mine:(maxe-mine)/totlength:maxe-(maxe-mine)/totlength
+    E_ARRAY = range(mine, maxe, length=totlength)
     DOS_ARRAY = zeros(totlength)
+    @assert length(E_ARRAY) == length(DOS_ARRAY) 
     for energy in all_energies
         DOS_ARRAY[Int(round((energy-mine)*histogram_width))+1] += histogram_width/mesh^2
     end

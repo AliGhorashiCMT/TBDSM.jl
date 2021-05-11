@@ -174,6 +174,37 @@ end
 
 """
 $(TYPEDSIGNATURES)
+Returns many defect cells using make_hubbarddefectcell. The idea is to be able to make many different 
+defect cells to fit to Ab Initio data.
+"""
+function make_hubbarddefectcells(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsites::Vector{<:Vector{<:Real}}, cell_mult::Vector{<:Integer}, 
+    hopses::Vector{<:Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}}, defectenergies::Vector{<:Real}, defecthops::Vector{<:Real}, Us::Vector{<:Real})
+    defectcells = PyCall.PyObject[] 
+    for sublatonsite in sublatonsites
+        for hops in hopses
+            for defectenergy in defectenergies
+                for defecthop in defecthops
+                    for U in Us
+                        push!(defectcells, make_hubbarddefectcell(lat_vectors, sublattices, sublatonsite, cell_mult, hops, defectenergy, defecthop, U))
+                    end
+                end
+            end
+        end
+    end
+    return defectcells
+end
+
+"""
+$(TYPEDSIGNATURES)
+"""
+function make_hubbarddefectcells(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, 
+    hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, defectenergies::Vector{<:Real}, defecthops::Vector{<:Real}, Us::Vector{<:Real})
+
+    make_hubbarddefectcells(lat_vectors, sublattices, [sublatonsite], cell_mult, 
+        [hops], defectenergies, defecthops, Us)
+end
+"""
+$(TYPEDSIGNATURES)
 """
 function make_onedsupercell(supercellmult::Integer)
     N = supercellmult
