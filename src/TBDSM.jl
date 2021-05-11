@@ -66,5 +66,7 @@ export plot_density, plot_wfn
 include("dos.jl")
 export dos
 
+include("compare_abinitio.jl")
+export compare_dft
 
 end # module
