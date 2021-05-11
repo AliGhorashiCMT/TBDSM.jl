@@ -13,13 +13,13 @@ end
 $(TYPEDSIGNATURES)
 
 """
-function bands_overlayeddos(model::PyCall.PyObject, ks...; mesh=100, histogram_width=100)
+function bands_overlayeddos(model::PyCall.PyObject, ks...; mesh=100, histogram_width=100, normalized::Bool=true)
     d = length(model.lattice.reciprocal_vectors())
     println(d)
-    return bands_overlayeddos(model, Val(d), ks..., mesh=mesh, histogram_width=histogram_width)
+    return bands_overlayeddos(model, Val(d), ks..., mesh=mesh, histogram_width=histogram_width, normalized=normalized)
 end
 
-function bands_overlayeddos(model::PyCall.PyObject, ::Val{1},  ks...; mesh=100, histogram_width=100)
+function bands_overlayeddos(model::PyCall.PyObject, ::Val{1},  ks...; normalized::Bool=true, mesh=100, histogram_width=100)
     solver = pb_solver(model)
     diffks = diff(float.(collect(ks)))
     bands = Vector{Vector{Float64}}()
@@ -42,27 +42,27 @@ function bands_overlayeddos(model::PyCall.PyObject, ::Val{1},  ks...; mesh=100, 
     display(Plots.plot(a, b, size=(1000, 500), linewidth=5))
 end
 
-function bands_overlayeddos(model::PyCall.PyObject, ::Val{2},  ks...; mesh=100, histogram_width=100, kwargs...)
+function bands_overlayeddos(model::PyCall.PyObject, ::Val{2},  ks...; normalized::Bool=true, mesh=100, histogram_width=100, kwargs...)
     solver = pb_solver(model)
     diffks = diff(float.(collect(ks)))
     bands = Vector{Vector{Float64}}()
+    b1, b2 = model.lattice.reciprocal_vectors()
     for (k, diffk) in zip(ks, diffks)
         for n in 1:100
             kinterpolate = k + diffk*n/100
-            solver.set_wave_vector(kinterpolate)
+            normalized ? solver.set_wave_vector(sum(kinterpolate.*[b1, b2])) : solver.set_wave_vector(kinterpolate)
             push!(bands, solver.eigenvalues)
         end
     end
     bands_2d = zeros(length(bands), length(bands[1]) )
+    println(length(bands[1]))
     for row in 1:length(bands)
         bands_2d[row, :]=bands[row]
     end
-    println(bands)
-    println(bands_2d)
     a = Plots.plot(bands_2d, legend=false)
     dose, dosv = dos(model, mesh=mesh, histogram_width=histogram_width)
     b = Plots.plot(dosv, dose, legend=false)
-    display(Plots.plot(a, b, size=(1000, 500), linewidth=5))
+    display(Plots.plot(a, b, size=(1000, 500), linewidth=5, xticks=[]))
 end
 
 function dos(model::PyCall.PyObject, ::Val{1}; nelectrons::Union{Nothing, Real}=nothing, mesh=100, histogram_width=100)
@@ -78,8 +78,9 @@ function dos(model::PyCall.PyObject, ::Val{1}; nelectrons::Union{Nothing, Real}=
         end
     end
     mine, maxe = minimum(all_energies), maximum(all_energies)
-    DOS_ARRAY = zeros(Int(round(maxe-mine)*histogram_width)+1)
-    E_ARRAY = collect(mine:1/histogram_width:(length(DOS_ARRAY)-1)/histogram_width+mine)
+    totlength= Int(round(maxe-mine)*histogram_width)+1
+    DOS_ARRAY = zeros(totlength)
+    E_ARRAY = mine:(maxe-mine)/totlength:maxe-(maxe-mine)/totlength#collect(mine:1/histogram_width:(length(DOS_ARRAY)-1)/histogram_width+mine)
     for energy in all_energies
         DOS_ARRAY[Int(round((energy-mine)*histogram_width))+1] += histogram_width/mesh
     end
@@ -87,6 +88,7 @@ function dos(model::PyCall.PyObject, ::Val{1}; nelectrons::Union{Nothing, Real}=
         println(sum(diff(E_ARRAY).*DOS_ARRAY[1:end-1]))
         @assert sum(diff(E_ARRAY).*DOS_ARRAY[1:end-1]) ≈ nelectrons
     end
+    @assert length(E_ARRAY) == length(DOS_ARRAY)
     return E_ARRAY, DOS_ARRAY
 end
 
@@ -95,18 +97,18 @@ function dos(model::PyCall.PyObject, ::Val{2}; mesh=100, histogram_width=100)
     solver = pb_solver(model)
     b1, b2 = model.lattice.reciprocal_vectors()
     all_energies = Float64[]
-    for i in 1:mesh
-        for j in 1:mesh
-            solver.set_wave_vector(b1*i/mesh+b2*j/mesh)
-            energies = solver.eigenvalues
-            for energy in energies
-                push!(all_energies, energy) 
-            end
+    for (i, j) in Tuple.(CartesianIndices(rand(mesh, mesh)))
+        solver.set_wave_vector(b1*i/mesh+b2*j/mesh)
+        energies = solver.eigenvalues
+        for energy in energies
+            push!(all_energies, energy) 
         end
     end
     mine, maxe = minimum(all_energies), maximum(all_energies)
-    DOS_ARRAY = zeros(Int(round(maxe-mine)*histogram_width)+1)
-    E_ARRAY = collect(mine:1/histogram_width:(length(DOS_ARRAY)-1)/histogram_width+mine)
+    println(mine, " ", maxe)
+    totlength = Int(round((maxe-mine)*histogram_width))+1
+    E_ARRAY = mine:(maxe-mine)/totlength:maxe-(maxe-mine)/totlength
+    DOS_ARRAY = zeros(totlength)
     for energy in all_energies
         DOS_ARRAY[Int(round((energy-mine)*histogram_width))+1] += histogram_width/mesh^2
     end
@@ -119,15 +121,11 @@ function dos(model::PyCall.PyObject, ::Val{3}; mesh=100, histogram_width=100)
     solver = pb_solver(model)
     b1, b2, b3 = model.lattice.reciprocal_vectors()
     all_energies = Float64[]
-    for i in 1:mesh
-        for j in 1:mesh
-            for k in 1:mesh
-                solver.set_wave_vector(b1*i/mesh+b2*j/mesh+b3*k/mesh)
-                energies = solver.eigenvalues
-                for energy in energies
-                    push!(all_energies, energy) 
-                end
-            end
+    for (i, j, k) in Tuple.(CartesianIndices(rand(mesh, mesh, mesh)))
+        solver.set_wave_vector(b1*i/mesh+b2*j/mesh+b3*k/mesh)
+        energies = solver.eigenvalues
+        for energy in energies
+            push!(all_energies, energy) 
         end
     end
     mine, maxe = minimum(all_energies), maximum(all_energies)

@@ -130,6 +130,48 @@ function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     return supermodel
 end
 
+function make_hubbarddefectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, 
+    hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, defectenergy::Real, defecthop::Real, U::Real)
+    @assert length(sublattices) == length(sublatonsite)
+    plt.close()
+    newvecs = lat_vectors.*cell_mult
+    println(newvecs[1])
+    lat = pb_lattice(newvecs...) # pybinding lattice with superlattice vectors
+    for (x1, y1) in Tuple.(CartesianIndices(rand(cell_mult[1], cell_mult[2])))
+        x, y = x1-1, y1-1
+        for (index, sublattice) in enumerate(sublattices)
+            try
+            (x==0 && y==0 && index==1) ? lat.add_sublattices(("$(sublattice[1])$(x)$(y)", sum(lat_vectors.*[x, y])+sublattice[2], [defectenergy+U, defectenergy] )) : lat.add_sublattices(("$(sublattice[1])$(x)$(y)", sum(lat_vectors.*[x, y])+sublattice[2], [sublatonsite[index], sublatonsite[index]] ))
+            catch e
+                println(e)
+                println("exception")
+            end
+        end
+    end
+    totalnumhops = 0
+    for (index1, sublattice1) in enumerate(sublattices)
+        for (x2, y2) in Tuple.(CartesianIndices(rand(cell_mult[1], cell_mult[2])))
+            x1, y1 = x2-1, y2-1
+            for hop in hops
+                hop[1] == index1 || continue
+                a, b = return_superhoppings([x1, y1], hop[3], cell_mult)
+                secondsub = sublattices[hop[2]][1]
+                try
+                    ("$(sublattice1[1])$(x1)$(y1)" == sublattices[1][1]*"00" ||  "$(secondsub)$(a...)" == sublattices[1][1]*"00") && println("Making defect hopping\n") 
+                    ("$(sublattice1[1])$(x1)$(y1)" == sublattices[1][1]*"00" ||  "$(secondsub)$(a...)" == sublattices[1][1]*"00") ? lat.add_hoppings((b, "$(sublattice1[1])$(x1)$(y1)", "$(secondsub)$(a...)", [[defecthop, 0], [0, defecthop]])) : lat.add_hoppings((b, "$(sublattice1[1])$(x1)$(y1)", "$(secondsub)$(a...)", [[hop[4], 0], [0, hop[4]]]))
+                    totalnumhops +=1
+                catch
+                    println("some error")
+                end
+            end
+        end
+    end
+    println("Total number of hoppings (check): ", totalnumhops)
+    supermodel = pb_model(lat, pb.translational_symmetry())
+    return supermodel
+end
+
+
 """
 $(TYPEDSIGNATURES)
 """

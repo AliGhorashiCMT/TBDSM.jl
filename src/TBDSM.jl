@@ -51,7 +51,8 @@ export graphene_bands, bilayer_graphene_bands, tmd_mo_s2, graphene_impol, graphe
 read_grapheneplasmon, read_grapheneplasmonline, read_levitov_tbgrapheneplasmon
 
 include("make_supercell.jl")
-export make_supercell, make_supercell2, make_supercellbands, make_graphenesupercellbands, make_defectcell
+export make_supercell, make_supercell2, make_supercellbands, make_graphenesupercellbands, make_defectcell, 
+make_hubbarddefectcell
 
 include("finite_systems.jl")
 export make_random_lattice
