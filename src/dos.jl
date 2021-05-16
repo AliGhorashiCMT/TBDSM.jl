@@ -12,6 +12,17 @@ end
 """
 $(TYPEDSIGNATURES)
 
+"""
+function projecteddos(model::PyCall.PyObject, orbital::Integer; mesh=100, histogram_width=100)
+    d = length(model.lattice.reciprocal_vectors())
+    println(d)
+    return projecteddos(model, Val(d), orbital, mesh=mesh, histogram_width=histogram_width)
+end
+
+
+"""
+$(TYPEDSIGNATURES)
+
 `mesh` : meshing for calculation of density of states
 
 `normalized` : Whether the kvectors given are in the basis of reciprocal lattice vectors
@@ -22,6 +33,13 @@ function bands_overlayeddos(model::PyCall.PyObject, ks...; mesh=100, histogram_w
     println(d)
     return bands_overlayeddos(model, Val(d), ks..., mesh=mesh, histogram_width=histogram_width, normalized=normalized)
 end
+
+function bands_overlayeddos(model::PyCall.PyObject, orbital::Integer, ks...; mesh=100, histogram_width=100, normalized::Bool=true)
+    d = length(model.lattice.reciprocal_vectors())
+    println(d)
+    return bands_overlayeddos(model, Val(d), orbital, ks..., mesh=mesh, histogram_width=histogram_width, normalized=normalized)
+end
+
 
 function bands_overlayeddos(model::PyCall.PyObject, ::Val{1},  ks...; normalized::Bool=true, mesh=100, histogram_width=100)
     solver = pb_solver(model)
@@ -69,6 +87,35 @@ function bands_overlayeddos(model::PyCall.PyObject, ::Val{2},  ks...; normalized
     display(Plots.plot(a, b, size=(1000, 500), linewidth=5, xticks=[]))
 end
 
+function bands_overlayeddos(model::PyCall.PyObject, ::Val{2}, orbital::Integer,  ks...; normalized::Bool=true, mesh=100, histogram_width=100, kwargs...)
+    solver = pb_solver(model)
+    diffks = diff(float.(collect(ks)))
+    bands = Vector{Vector{Float64}}()
+    b1, b2 = model.lattice.reciprocal_vectors()
+    for (k, diffk) in zip(ks, diffks)
+        for n in 1:100
+            kinterpolate = k + diffk*n/100
+            normalized ? solver.set_wave_vector(sum(kinterpolate.*[b1, b2])) : solver.set_wave_vector(kinterpolate)
+            push!(bands, solver.eigenvalues)
+        end
+    end
+    bands_2d = zeros(length(bands), length(bands[1]) )
+    println(length(bands[1]))
+    for row in 1:length(bands)
+        bands_2d[row, :]=bands[row]
+    end
+    a = Plots.plot(bands_2d, legend=false)
+    dose, dosvup = projecteddos(model, orbital, mesh=mesh, histogram_width=histogram_width)
+    b = Plots.plot(dosvup, dose, legend=false)
+    display(Plots.plot(a, b, size=(1000, 500), linewidth=5, xticks=[]))
+end
+
+
+"""
+$(TYPEDSIGNATURES)
+
+
+"""
 function spindos(model::PyCall.PyObject, ::Val{2}; mesh=100, histogram_width=100)
     println("Dimension: ", 2)
     solver = pb_solver(model)
@@ -105,11 +152,43 @@ function spindos(model::PyCall.PyObject, ::Val{2}; mesh=100, histogram_width=100
     for energy in all_energiesdn
         DOS_ARRAYDN[Int(round((energy-mine)*histogram_width))+1] += histogram_width/mesh^2
     end
-
-    #TODO @assert sum(diff(E_ARRAY).*DOS_ARRAY[1:end-1])
     return E_ARRAY, DOS_ARRAYUP, DOS_ARRAYDN
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+
+"""
+function projecteddos(model::PyCall.PyObject, ::Val{2}, orbital::Integer; mesh=100, histogram_width=100)
+    println("Dimension: ", 2)
+    solver = pb_solver(model)
+    b1, b2 = model.lattice.reciprocal_vectors()
+    all_energies = Float64[]
+    all_projections = Float64[]
+    for (i, j) in Tuple.(CartesianIndices(rand(mesh, mesh)))
+        solver.set_wave_vector(b1*i/mesh+b2*j/mesh)
+        energies = solver.eigenvalues
+        eigenvectors = solver.eigenvectors
+        for (V, energy) in zip(eachcol(eigenvectors), energies)
+            push!(all_energies, energy)
+            push!(all_projections, (abs(V[orbital])).^2 )
+        end
+    end
+    mine, maxe = minimum(all_energies), maximum(all_energies)
+    println(mine, " ", maxe)
+    totlength = Int(round((maxe-mine)*histogram_width))+1
+    E_ARRAY = range(mine, maxe, length=totlength)
+    DOS_ARRAY = zeros(totlength)
+    for (projection, energy) in zip(all_projections, all_energies)
+        DOS_ARRAY[Int(round((energy-mine)*histogram_width))+1] += projection*histogram_width/mesh^2
+    end
+    return E_ARRAY, DOS_ARRAY
+end
+
+"""
+$(TYPEDSIGNATURES)
+"""
 function plotspinbands(model::PyCall.PyObject, ::Val{2}, ks...; normalized::Bool=true, mesh=100, histogram_width=100, kwargs...)
     solver = pb_solver(model)
     diffks = diff(float.(collect(ks)))

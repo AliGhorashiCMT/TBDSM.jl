@@ -53,7 +53,7 @@ include("wfns_densities.jl")
 export plot_density, plot_wfn
 
 include("dos.jl")
-export dos, bands_overlayeddos
+export dos, bands_overlayeddos, projecteddos, spindos
 
 include("compare_abinitio.jl")
 export compare_dft
