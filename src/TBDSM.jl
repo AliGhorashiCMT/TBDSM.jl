@@ -24,17 +24,6 @@ function __init__()
     copy!(pb_lattice, pb.Lattice)
     copy!(pyintegrate, pyimport_conda("scipy.integrate", "scipy"))
     copy!(interpol, pyimport_conda("scipy.interpolate", "scipy"))
-    
-    #matplotlib.use("TkAgg") # Necessary to have a gui capable backend
-    #copy!(pb, pyimport("pybinding"))
-    #copy!(pb_repo, pyimport("pybinding.repository"))
-    #copy!(pb_graphene, pyimport("pybinding.repository.graphene"))
-    #copy!(pb_mos2, pyimport("pybinding.repository.group6_tmd").monolayer_3band("MoS2"))
-    #copy!(pb_model, pb.Model)
-    #copy!(pb_solver, pb.solver.lapack)
-    #copy!(pb_lattice, pb.Lattice)
-    #copy!(pyintegrate, pyimport("scipy.integrate"))
-    #copy!(interpol, pyimport("scipy.interpolate"))
 end
 
 include("tb_model.jl")
@@ -64,7 +53,7 @@ include("wfns_densities.jl")
 export plot_density, plot_wfn
 
 include("dos.jl")
-export dos
+export dos, bands_overlayeddos
 
 include("compare_abinitio.jl")
 export compare_dft
