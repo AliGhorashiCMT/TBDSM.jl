@@ -1,15 +1,39 @@
+function bilayer_nointerlayer()
+    a = 0.24595   # [nm] unit cell length
+    a_cc = 0.142  # [nm] carbon-carbon distance
+    c0 = 0.335    # [nm] interlayer spacing
+    lat = pb_lattice(a1=[a/2, a/2 * sqrt(3)], a2=[a/2, -a/2 * sqrt(3)])
+    lat.add_sublattices(
+        ("A1", [0,  -a_cc/2,   0]),
+        ("B1", [0,   a_cc/2,   0]),
+        ("A2", [0,   a_cc/2, -c0]),
+        ("B2", [0, 3*a_cc/2, -c0])
+    )
+    lat.add_hoppings(
+        ([ 0, 0], "A1", "B1", -2.8),
+        ([ 0, 1], "A1", "B1", -2.8),
+        ([-1, 0], "A1", "B1", -2.8),
+        ([ 0, 0], "A2", "B2", -2.8),
+        ([ 0, 1], "A2", "B2", -2.8),
+        ([-1, 0], "A2", "B2", -2.8),
+    )
+    return lat
+end
+
+
 """
 $(TYPEDSIGNATURES)
 """
-function graphene_bands()
+function graphene_bands(plotorno::Bool=false)
     a_cc=pb_graphene.a_cc
     Gamma = [0, 0]
     K2 = [2*pi / (3*sqrt(3)*a_cc), 2*pi / (3*a_cc)]
     M = [0, 2*pi / (3*a_cc)]
     K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
     graphene_mod = pb_model(pb_graphene.monolayer(), pb.translational_symmetry())
-    pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).plot()
-    plt.show()
+    grbands = pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).energy
+    plotorno && display(Plots.plot(grbands))
+    return grbands
 end
 
 """
@@ -166,13 +190,13 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function bilayer_graphene_bands(gamma0::Real=-0, gamma1::Real=0; plotorno::Bool=false)
+function bilayer_graphene_bands(nointerlayer::Bool=true,  plotorno::Bool=false)
     a_cc=pb_graphene.a_cc
     Gamma = [0, 0]
     K2 = [2*pi / (3*sqrt(3)*a_cc), 2*pi / (3*a_cc)]
     M = [0, 2*pi / (3*a_cc)]
     K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
-    graphene_mod = pb_model(pb_graphene.bilayer(gamma0, gamma1), pb.translational_symmetry())
+    graphene_mod = nointerlayer ? pb_model(bilayer_nointerlayer(), pb.translational_symmetry()) :  pb_model(pb_graphene.bilayer(), pb.translational_symmetry())
     energies = pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).energy
     println(plotorno)
     plotorno && display(Plots.plot(energies))
@@ -206,3 +230,5 @@ function levitov_tbg_model()
         ([0, -1], "A", "B", t))
     return lat
 end
+
+
