@@ -22,16 +22,17 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, histogram_width::Real=100)
-    qx = qx*10
-    qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
+function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, offset::Vector{Float64}=[-17.03098, 0],
+    histogram_width::Real=100, subsampling::Integer=3)
+    qx *= 10
+    qy *= 10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*30)
     b1, b2 = pb_graphene.monolayer().reciprocal_vectors()
     bzone_area = abs(cross(b1, b2)[3])/100 ## Brillouin zone area in inverse angstrom squared
     graphene_mod = pb_model(pb_graphene.monolayer(), pb.translational_symmetry())
     graphene_solver = pb_solver(graphene_mod)
     for (xiter, yiter) in Tuple.(CartesianIndices(rand(mesh, mesh)))
-        kx, ky = xiter/mesh*b1[1] + yiter/mesh*b2[1], xiter/mesh*b1[2] + yiter/mesh*b2[2]
+        kx, ky = xiter/(subsampling*mesh)*b1[1] + yiter/(subsampling*mesh)*b2[1]+offset[1], xiter/(subsampling*mesh)*b1[2] + yiter/(subsampling*mesh)*b2[2] + offset[2]
         graphene_solver.set_wave_vector([kx, ky])
         Ednk, Eupk = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
         vecdnk, vecupk = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
@@ -43,10 +44,10 @@ function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, histogram_wi
         ω = Eupkplusq - Ednk
         f2 = heaviside(μ-Eupkplusq)
         f1 = heaviside(μ-Ednk)
-        im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 2/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area
+        im_pols[round(Int, ω*histogram_width+1)] += 4/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area*(1/subsampling^2)
         ω = Eupkplusq - Eupk
         f1 = heaviside(μ-Eupk)
-        ω > 0 && (im_pols[round(Int, ω*histogram_width+1)] +=  2/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area)
+        ω > 0 && (im_pols[round(Int, ω*histogram_width+1)] += 4/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area*(1/subsampling^2))
     end
     return im_pols
 end
