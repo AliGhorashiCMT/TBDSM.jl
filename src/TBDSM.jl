@@ -37,7 +37,8 @@ export impol_3d, realeps_3d
 
 include("tb_specific_examples.jl")
 export graphene_bands, bilayer_graphene_bands, tmd_mo_s2, graphene_impol, graphene_realeps, 
-read_grapheneplasmon, read_grapheneplasmonline, read_levitov_tbgrapheneplasmon, levitov_tbgraphene_impol
+read_grapheneplasmon, read_grapheneplasmonline, read_levitov_tbgrapheneplasmon, levitov_tbgraphene_impol, 
+bilayer_nointerlayer
 
 include("make_supercell.jl")
 export make_supercell, make_supercell2, make_supercellbands, make_graphenesupercellbands, make_defectcell, 

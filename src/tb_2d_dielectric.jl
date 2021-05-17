@@ -19,7 +19,7 @@ function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Inte
     println(num_bands)
     for (xiter, yiter) in Tuple.(CartesianIndices(rand(mesh, mesh)))
         ##We offset the sampling of the brillouin zone to relevant k vectors if necessary and account for subsampling
-        kx, ky = xiter/(subsampling*mesh)*b1[1] + yiter/(subsampling*mesh)*b2[1]+offset[1], xiter/(subsampling*mesh)*b1[2] + yiter/(subsampling*mesh)*b2[2]+offset[2]
+        kx, ky = xiter/(subsampling*mesh)*b1 + yiter/(subsampling*mesh)*b2 + [offset..., 0]
         solver2d.set_wave_vector([kx, ky])
         Eks = solver2d.eigenvalues
         vecks= solver2d.eigenvectors
@@ -29,20 +29,18 @@ function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Inte
         for dn_band in 1:num_bands
             for up_band in 1:num_bands
                 edn = Eks[dn_band]
-                eup = Eks[up_band]
                 vdn = vecks[:, dn_band]
-                vup = vecks[:, up_band]
 
-                ednq = Ekplusqs[dn_band]
                 eupq = Ekplusqs[up_band]
-                vdnq = veckplusqs[:, dn_band]
                 vupq = veckplusqs[:, up_band]
 
                 overlap = abs(sum(conj(vupq).*vdn))^2
                 ω = eupq - edn
                 f2 = heaviside(μ-eupq)
                 f1 = heaviside(μ-edn)
-                ω>0 && (im_pols[round(Int, ω*histogram_width+1)] += spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/mesh)^2*bzone_area*(1/subsampling)^2)
+                ω > 0 || continue
+                #println(f2-f1)
+                im_pols[round(Int, ω*histogram_width)+1] += spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/mesh)^2*bzone_area*(1/subsampling)^2
             end
         end
     end

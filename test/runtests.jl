@@ -34,3 +34,29 @@ end
         ϵ!=0 && (@test 5 > (100*(vsb[argmin(abs.(esb.-ϵ))]-2*vs[argmin(abs.(es.-ϵ))])/(2*vs[argmin(abs.(es.-ϵ))]))) 
     end  
 end
+
+@testset "bilayergraphene" begin
+
+    #test that bilayer graphene has correct dispersion as mass term varies
+    bilayer = pb_model(bilayer_nointerlayer(0), pb.translational_symmetry())
+    graphene = pb_model(pb_graphene.monolayer(), pb.translational_symmetry())
+    a_cc=pb_graphene.a_cc
+    Gamma = [0, 0]
+    K2 = [2*pi / (3*sqrt(3)*a_cc), 2*pi / (3*a_cc)]
+    M = [0, 2*pi / (3*a_cc)]
+    K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
+    bilayer_disp = pb_solver(bilayer).calc_bands(Gamma, K2, M, K1).energy
+    monolayer_disp = pb_solver(graphene).calc_bands(Gamma, K2, M, K1).energy
+    @test bilayer_disp[:, 1] ≈ monolayer_disp[:, 1]
+    @test bilayer_disp[:, 2] ≈ monolayer_disp[:, 1]
+    @test bilayer_disp[:, 3] ≈ monolayer_disp[:, 2]
+    @test bilayer_disp[:, 4] ≈ monolayer_disp[:, 2]
+
+    #Now make a shifted bilayer dispersion 
+    bilayer = pb_model(bilayer_nointerlayer(20), pb.translational_symmetry())
+    @test bilayer_disp[:, 1] ≈ monolayer_disp[:, 1]
+    @test bilayer_disp[:, 2] ≈ monolayer_disp[:, 2]
+
+    @test bilayer_disp[:, 3] ≈  monolayer_disp[:, 1].+20
+    @test bilayer_disp[:, 4] ≈  monolayer_disp[:, 2].+20
+end
