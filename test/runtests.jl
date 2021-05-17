@@ -99,9 +99,23 @@ end
             ([0, -1], "A1", "B1", -2.8),
     ])
     isapprox(pb_graphene.monolayer().brillouin_zone(), maybegraphene.brillouin_zone(), atol=1e-1)
+    AllKPoints = maybegraphene.brillouin_zone()
     maybegraphenemod = pb_model(maybegraphene, pb.translational_symmetry())
     a = pb_solver(maybegraphenemod)#.set_wave_vector([0, 0])
     a.set_wave_vector([0, 0])
     a.eigenvalues ≈ [-8.4, 8.4]
+    for KPoint in AllKPoints
+        a.set_wave_vector(KPoint)
+        println(a.eigenvalues)
+        @test isapprox(a.eigenvalues, zeros(2), atol=1e-1)
+    end
+    K1, K2, K3, K4, K5, K6 = AllKPoints
+    #Now check the M points 
+    Ms = (K1+K2)/2, (K2+K3)/2, (K3+K4)/2, (K4+K5)/2, (K5+K6)/2, (K6+K1)/2
+    for M in Ms
+        a.set_wave_vector(M)
+        println(a.eigenvalues)
+        @test isapprox(a.eigenvalues, [-2.8, 2.8], atol=1e-1)
+    end
 end
 
