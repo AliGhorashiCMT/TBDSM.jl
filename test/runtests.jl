@@ -62,21 +62,15 @@ end
 end
 
 @testset "ImPolarization Test" begin
-
     a_cc=pb_graphene.a_cc
     Gamma = [0, 0]
     K2 = [2*pi / (3*sqrt(3)*a_cc), 2*pi / (3*a_cc)]
     M = [0, 2*pi / (3*a_cc)]
     K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
-
-    imps = impol_2d(1/6, 0, 1, bilayer_nointerlayer(.02), spin=4, mesh=50, 
+    imps = impol_2d(1/6, 0, 1, bilayer_nointerlayer(.001), spin=4, mesh=200, 
     histogram_width=5, offset=K1, subsampling=3)
-
     impsmon=impol_2d(1/6, 0, 1, pb_graphene.monolayer(),
-    spin=4, mesh=50, histogram_width=5, offset=K1, subsampling=3)
-
-    percentdiff = (impsmon-imps)./imps
-    @test 100*maximum(replace(x-> x==Inf ? 0 : x, replace(x-> isnan(x) ?  0 : x, percentdiff))) < 1e-2 #Less than .01 percent error in polarization calculations
-
-
+    spin=4, mesh=200, histogram_width=5, offset=K1, subsampling=3)
+    percentdiff = (2*impsmon-imps)./imps
+    @test 100*maximum(abs.(replace(x-> x==Inf ? 0 : x, replace(x-> isnan(x) ?  0 : x, percentdiff)))) < 5 #Less than 5 percent error in polarization calculations
 end
