@@ -166,15 +166,17 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function bilayer_graphene_bands()
+function bilayer_graphene_bands(gamma0::Real=-0, gamma1::Real=0; plotorno::Bool=false)
     a_cc=pb_graphene.a_cc
     Gamma = [0, 0]
     K2 = [2*pi / (3*sqrt(3)*a_cc), 2*pi / (3*a_cc)]
     M = [0, 2*pi / (3*a_cc)]
     K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
-    graphene_mod = pb_model(pb_graphene.bilayer(), pb.translational_symmetry())
-    pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).plot()
-    plt.show()
+    graphene_mod = pb_model(pb_graphene.bilayer(gamma0, gamma1), pb.translational_symmetry())
+    energies = pb_solver(graphene_mod).calc_bands(K1, Gamma, M, K2).energy
+    println(plotorno)
+    plotorno && display(Plots.plot(energies))
+    return energies
 end
 
 """

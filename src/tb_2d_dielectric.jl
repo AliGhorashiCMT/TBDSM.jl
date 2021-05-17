@@ -16,6 +16,7 @@ function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Inte
     solver2d.set_wave_vector([0, 0])
     GammaBands = solver2d.eigenvalues
     num_bands = length(GammaBands)
+    println(num_bands)
     for (xiter, yiter) in Tuple.(CartesianIndices(rand(mesh, mesh)))
         ##We offset the sampling of the brillouin zone to relevant k vectors if necessary and account for subsampling
         kx, ky = xiter/(subsampling*mesh)*b1[1] + yiter/(subsampling*mesh)*b2[1]+offset[1], xiter/(subsampling*mesh)*b1[2] + yiter/(subsampling*mesh)*b2[2]+offset[2]
@@ -41,7 +42,7 @@ function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Inte
                 ω = eupq - edn
                 f2 = heaviside(μ-eupq)
                 f1 = heaviside(μ-edn)
-                ω>0 && (im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/mesh)^2*bzone_area*(1/subsampling)^2)
+                ω>0 && (im_pols[round(Int, ω*histogram_width+1)] += spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/mesh)^2*bzone_area*(1/subsampling)^2)
             end
         end
     end

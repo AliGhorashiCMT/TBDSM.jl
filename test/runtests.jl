@@ -21,8 +21,16 @@ end
     The analytical result is given by 4*A/(4pi^2)*(2pi)*E/v^2. A = 3*sqrt(3)/2*1.42^2
     =#
     es, vs = dos(pb_model(pb_graphene.monolayer(), pb.translational_symmetry()), mesh=300, histogram_width=5)
+    esb, vsb = dos(pb_model(pb_graphene.bilayer(), pb.translational_symmetry()), mesh=300, histogram_width=5)
+
     dosanalytic(x::Real) = 3*sqrt(3)/2*1.42^2*2*pi/(pi^2)*abs(x)/36
     for (e, v) in zip(es, vs)
         ((abs(e)<1) & (v != 0) & (dosanalytic(e) !=0)) && @test abs(100*(dosanalytic(e)-2*v)/(2*v)) < 10 
     end
+
+    #Below we check for up to 5 percent errors in comparing bilayer and monolayer graphene densities of states
+    for ϵ in -1.5:0.1:1.5
+        println(ϵ)
+        ϵ!=0 && (@test 5 > (100*(vsb[argmin(abs.(esb.-ϵ))]-2*vs[argmin(abs.(es.-ϵ))])/(2*vs[argmin(abs.(es.-ϵ))]))) 
+    end  
 end
