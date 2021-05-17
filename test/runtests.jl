@@ -22,12 +22,10 @@ end
     =#
     es, vs = dos(pb_model(pb_graphene.monolayer(), pb.translational_symmetry()), mesh=300, histogram_width=5)
     esb, vsb = dos(pb_model(pb_graphene.bilayer(), pb.translational_symmetry()), mesh=300, histogram_width=5)
-
     dosanalytic(x::Real) = 3*sqrt(3)/2*1.42^2*2*pi/(pi^2)*abs(x)/36
     for (e, v) in zip(es, vs)
         ((abs(e)<1) & (v != 0) & (dosanalytic(e) !=0)) && @test abs(100*(dosanalytic(e)-2*v)/(2*v)) < 10 
     end
-
     #Below we check for up to 5 percent errors in comparing bilayer and monolayer graphene densities of states
     for ϵ in -1.5:0.1:1.5
         println(ϵ)
@@ -59,4 +57,24 @@ end
 
     @test bilayer_disp[:, 3] ≈  monolayer_disp[:, 1].+20
     @test bilayer_disp[:, 4] ≈  monolayer_disp[:, 2].+20
+end
+
+@testset "ImPolarization Test" begin
+
+    a_cc=pb_graphene.a_cc
+    Gamma = [0, 0]
+    K2 = [2*pi / (3*sqrt(3)*a_cc), 2*pi / (3*a_cc)]
+    M = [0, 2*pi / (3*a_cc)]
+    K1 = [-4*pi / (3*sqrt(3)*a_cc), 0]
+
+    imps = impol_2d(1/6, 0, 1, bilayer_nointerlayer(.02), spin=4, mesh=50, 
+    histogram_width=5, offset=K1, subsampling=3)
+
+    impsmon=impol_2d(1/6, 0, 1, pb_graphene.monolayer(),
+    spin=4, mesh=50, histogram_width=5, offset=K1, subsampling=3)
+
+    percentdiff = (impsmon-imps)./imps
+    @test 100*maximum(replace(x-> x==Inf ? 0 : x, replace(x-> isnan(x) ?  0 : x, percentdiff))) < 1e-2 #Less than .01 percent error in polarization calculations
+
+
 end

@@ -5,7 +5,6 @@ $(TYPEDSIGNATURES)
 """
 function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Integer=2, histogram_width::Real = 10, 
     mesh::Int=10, offset::Vector{<:Real}=[0, 0], subsampling::Real=1)
-
     qx *= 10 
     qy *= 10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*30)
@@ -13,12 +12,16 @@ function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Inte
     bzone_area = abs(cross(b1, b2)[3])/100 ## Brillouin zone area in inverse angstrom squared
     mod2d = pb_model(lat, pb.translational_symmetry())
     solver2d = pb_solver(mod2d)
-    solver2d.set_wave_vector([0, 0])
+    solver2d.set_wave_vector(offset)
     GammaBands = solver2d.eigenvalues
+    #println(GammaBands)
     num_bands = length(GammaBands)
     println(num_bands)
     for (xiter, yiter) in Tuple.(CartesianIndices(rand(mesh, mesh)))
+
+    #for (xiter, yiter) in Tuple.(CartesianIndices(rand(2*mesh+1, 2*mesh+1)))
         ##We offset the sampling of the brillouin zone to relevant k vectors if necessary and account for subsampling
+        #kx, ky = ((xiter-mesh-1)/(2*subsampling*mesh))*b1 + ((yiter-mesh-1)/(2*subsampling*mesh))*b2 + [offset..., 0]
         kx, ky = xiter/(subsampling*mesh)*b1 + yiter/(subsampling*mesh)*b2 + [offset..., 0]
         solver2d.set_wave_vector([kx, ky])
         Eks = solver2d.eigenvalues
@@ -30,17 +33,17 @@ function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Inte
             for up_band in 1:num_bands
                 edn = Eks[dn_band]
                 vdn = vecks[:, dn_band]
-
                 eupq = Ekplusqs[up_band]
                 vupq = veckplusqs[:, up_band]
-
                 overlap = abs(sum(conj(vupq).*vdn))^2
                 ω = eupq - edn
                 f2 = heaviside(μ-eupq)
                 f1 = heaviside(μ-edn)
                 ω > 0 || continue
+                ω < 20 || continue 
                 #println(f2-f1)
-                im_pols[round(Int, ω*histogram_width)+1] += spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/mesh)^2*bzone_area*(1/subsampling)^2
+                im_pols[round(Int, ω*histogram_width)+1] += spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/(mesh))^2*bzone_area*(1/subsampling)^2
+                #im_pols[round(Int, ω*histogram_width)+1] += spin/(2π)^2*π*histogram_width*(f2-f1)*overlap*(1/(2*mesh+1))^2*bzone_area*(1/subsampling)^2
             end
         end
     end

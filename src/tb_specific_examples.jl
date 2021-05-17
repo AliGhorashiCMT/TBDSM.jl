@@ -1,21 +1,27 @@
-function bilayer_nointerlayer(mass::Real)
+"""
+$(TYPEDSIGNATURES)
+"""
+function bilayer_nointerlayer(mass::Real=0)
     a = 0.24595   # [nm] unit cell length
     a_cc = 0.142  # [nm] carbon-carbon distance
     c0 = 0.335    # [nm] interlayer spacing
-    lat = pb_lattice(a1=[a/2, a/2 * sqrt(3)], a2=[a/2, -a/2 * sqrt(3)])
+    lat = pb_lattice(a1=[a, 0], a2=[a/2, -a/2 * sqrt(3)])
+    #lat = pb_lattice(a1=[a/2, a/2 * sqrt(3)], a2=[a/2, -a/2 * sqrt(3)])
     lat.add_sublattices(
         ("A1", [0,  -a_cc/2,   0]),
-        ("B1", [0,   a_cc/2,   0]),
-        ("A2", [0,   a_cc/2, -c0], mass),
-        ("B2", [0, 3*a_cc/2, -c0], mass)
+        ("B1", [0,  a_cc/2,   0]),
+        #("A2", [0,   a_cc/2, -c0], mass),
+        #("B2", [0, 3*a_cc/2, -c0], mass)
+        ("A2", [0, -a_cc/2, -c0], mass),
+        ("B2", [0, a_cc/2, -c0], mass)
     )
     lat.add_hoppings(
         ([ 0, 0], "A1", "B1", -2.8),
-        ([ 0, 1], "A1", "B1", -2.8),
-        ([-1, 0], "A1", "B1", -2.8),
+        ([ 1, -1], "A1", "B1", -2.8),
+        ([0, -1], "A1", "B1", -2.8),
         ([ 0, 0], "A2", "B2", -2.8),
-        ([ 0, 1], "A2", "B2", -2.8),
-        ([-1, 0], "A2", "B2", -2.8),
+        ([ 1, -1], "A2", "B2", -2.8),
+        ([0, -1], "A2", "B2", -2.8),
     )
     return lat
 end
