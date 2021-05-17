@@ -98,5 +98,9 @@ end
             ([0, -1], "A1", "B1", -2.8),
     ])
     isapprox(pb_graphene.monolayer().brillouin_zone(), maybegraphene.brillouin_zone(), atol=1e-1)
+    maybegraphenemod = pb_model(maybegraphene, pb.translational_symmetry())
+    a = pb_solver(maybegraphenemod)#.set_wave_vector([0, 0])
+    a.set_wave_vector([0, 0])
+    a.eigenvalues ≈ [-8.4, 8.4]
 end
 
