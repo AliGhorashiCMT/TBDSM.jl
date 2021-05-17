@@ -91,6 +91,7 @@ end
 
 @testset "Make Lattice" begin
     a = 0.24595
+    a_cc=pb_graphene.a_cc
     maybegraphene = make_lattice([a, 0], [a/2, -a/2 * sqrt(3)], 
     sublattices=[("A1", [0,  -a_cc/2,   0]),("B1", [0, a_cc/2, 0])], 
     hoppings=[([ 0, 0], "A1", "B1", -2.8),
