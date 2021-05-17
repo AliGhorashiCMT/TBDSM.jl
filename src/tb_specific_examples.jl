@@ -212,10 +212,11 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function tmd_mo_s2()
+function tmd_mo_s2(plotorno::Bool=false)
     mos2_mod = pb_model(pb_mos2, pb.translational_symmetry())
     kpoints1, kpoints2, kpoints3 = [0, 0], mos2_mod.lattice.brillouin_zone()[1], mos2_mod.lattice.brillouin_zone()[2]
-    pb_solver(mos2_mod).calc_bands(kpoints1, kpoints2, kpoints3).plot()
+    bands = pb_solver(mos2_mod).calc_bands(kpoints1, kpoints2, (kpoints2+kpoints3)/2, kpoints1).energy
+    plotorno && Plots.plot(bands)
 end
 
 """

@@ -74,3 +74,15 @@ end
     percentdiff = (2*impsmon-imps)./imps
     @test 100*maximum(abs.(replace(x-> x==Inf ? 0 : x, replace(x-> isnan(x) ?  0 : x, percentdiff)))) < 5 #Less than 5 percent error in polarization calculations
 end
+
+@testset "Twisted Bilayer Graphene Model" begin
+    b1, b2 = TBDSM.levitov_tbg_model().reciprocal_vectors()
+    #Check lengths of reciprocal lattice vectors
+    correct_length = 2π/13.4*2/sqrt(3)
+    isapprox(sqrt(sum(b1.^2)), correct_length, atol=1e-3)
+    isapprox(sqrt(sum(b2.^2)),  correct_length, atol=1e-3)
+end
+
+@testset "TMD" begin
+    tmd_mo_s2(false)
+end
