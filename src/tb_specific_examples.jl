@@ -26,7 +26,6 @@ function bilayer_nointerlayer(mass::Real=0)
     return lat
 end
 
-
 """
 $(TYPEDSIGNATURES)
 """
@@ -67,8 +66,8 @@ function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, offset::Vect
         Ednk, Eupk = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
         vecdnk, vecupk = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
         graphene_solver.set_wave_vector([kx, ky]+[qx, qy])
-        Ednkpluq, Eupkplusq = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
-        vecdnkplusq, vecupkplusq = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
+        _, Eupkplusq = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
+        _, vecupkplusq = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
         overlap1 = abs(sum(conj(vecupkplusq).*vecdnk))^2
         overlap2 = abs(sum(conj(vecupkplusq).*vecupk))^2
         ω = Eupkplusq - Ednk
