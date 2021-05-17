@@ -1,19 +1,19 @@
 """
 $(TYPEDSIGNATURES)
 """
-function make_lattice(a1::Array{<:Real, 1}, a2::Array{<:Real, 1}; sublattices::Union{Nothing, Array{Tuple{String,Array{T,1}},1}} = nothing, hoppings::Union{Nothing, Array{<:Tuple{Array{Int64,1},String,String, <:Real},1}} = nothing ) where T
+function make_lattice(a1::Vector{<:Real}, a2::Vector{<:Real}; sublattices::Union{Nothing, Vector{<:Tuple{String,Vector{<:T}}}} = nothing, 
+    hoppings::Union{Nothing, Vector{<:Tuple{Vector{<:Integer}, String, String, <:Real}}} = nothing ) where T
     lat = pb_lattice(a1, a2)
-    if sublattices isa Array{Tuple{String,Array{T,1}},1} where T
+    if sublattices isa Vector{<:Tuple{String, Vector{T}}} where T
         num_sublattices = length(sublattices)
         for i in 1:num_sublattices
             lat.add_sublattices(sublattices[i])
         end
     end
 
-    if hoppings isa Array{<:Tuple{Array{Int64,1},String,String, <:Real},1}
-        num_hoppings = length(hoppings)
-        for i in 1:num_hoppings
-            lat.add_hoppings(hoppings[i])
+    if hoppings isa Vector{<:Tuple{Vector{<:Integer},String,String, <:Real}}
+        for hopping in hoppings
+            lat.add_hoppings(hopping)
         end
     end
     return lat

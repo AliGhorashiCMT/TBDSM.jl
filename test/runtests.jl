@@ -81,8 +81,22 @@ end
     correct_length = 2π/13.4*2/sqrt(3)
     isapprox(sqrt(sum(b1.^2)), correct_length, atol=1e-3)
     isapprox(sqrt(sum(b2.^2)),  correct_length, atol=1e-3)
+
+
 end
 
 @testset "TMD" begin
     tmd_mo_s2(false)
 end
+
+@testset "Make Lattice" begin
+    a = 0.24595
+    maybegraphene = make_lattice([a, 0], [a/2, -a/2 * sqrt(3)], 
+    sublattices=[("A1", [0,  -a_cc/2,   0]),("B1", [0, a_cc/2, 0])], 
+    hoppings=[([ 0, 0], "A1", "B1", -2.8),
+            ([ 1, -1], "A1", "B1", -2.8),
+            ([0, -1], "A1", "B1", -2.8),
+    ])
+    isapprox(pb_graphene.monolayer().brillouin_zone(), maybegraphene.brillouin_zone(), atol=1e-1)
+end
+
