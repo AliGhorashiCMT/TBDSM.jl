@@ -76,7 +76,8 @@ function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, offset::Vect
         im_pols[round(Int, ω*histogram_width+1)] += 4/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area*(1/subsampling^2)
         ω = Eupkplusq - Eupk
         f1 = heaviside(μ-Eupk)
-        ω > 0 && (im_pols[round(Int, ω*histogram_width+1)] += 4/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area*(1/subsampling^2))
+        ω > 0 || continue
+        im_pols[round(Int, ω*histogram_width+1)] += 4/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area*(1/subsampling^2)
     end
     return im_pols
 end

@@ -10,8 +10,8 @@ end
 
 @testset "Polarization Tests" begin
     K1= [-17.0309799458612, 0.0]
-    g1 = impol_2d(1/6, 0, 1,  pb_graphene.monolayer(), spin=4, mesh=200, offset=K1, subsampling=3)
-    g2 = graphene_impol(1/6, 0,1, mesh=200, histogram_width=10)
+    g1 = impol_2d(1/6, 0, 1,  pb_graphene.monolayer(), spin=4, mesh=30, offset=[0, 0], subsampling=6)
+    g2 = graphene_impol(1/6, 0,1, mesh=30, histogram_width=10, subsampling=6)
     @test 100*maximum(replace(x-> x==Inf ? 0 : x, replace(x-> isnan(x) ?  0 : x, (g2-g1)./g1))) < 1e-2 #Less than .01 percent error in polarization calculations
 end
 
@@ -52,6 +52,8 @@ end
 
     #Now make a shifted bilayer dispersion 
     bilayer = pb_model(bilayer_nointerlayer(20), pb.translational_symmetry())
+    bilayer_disp = pb_solver(bilayer).calc_bands(Gamma, K2, M, K1).energy
+
     @test bilayer_disp[:, 1] ≈ monolayer_disp[:, 1]
     @test bilayer_disp[:, 2] ≈ monolayer_disp[:, 2]
 
