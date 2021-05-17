@@ -3,6 +3,7 @@ ENV["PYTHON"]=""
 Pkg.build("PyCall")
 using Test, TBDSM
 
-@testset "First test" begin
-    @test 1==1
+@testset "Specific Examples" begin
+    @test TBDSM.heaviside(1) == 1
+    @test TBDSM.heaviside(-1) == 0
 end

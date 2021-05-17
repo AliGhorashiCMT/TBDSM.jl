@@ -2,7 +2,7 @@
 $(TYPEDSIGNATURES)
 """
 function plot_wfn(model::PyCall.PyObject; orbital::Integer=1, mesh=10)
-    positions = [val.position[1:2] for (key, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
+    positions = [val.position[1:2] for (_, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
     println(positions)
     solver = pb_solver(model)
     solver.set_wave_vector([1/2, 1/9])
@@ -26,7 +26,7 @@ $(TYPEDSIGNATURES)
 Returns a density heatmap of the supplied Pybinding model (for electrons up to the supplied Fermi energy (μ)). Orbitals are modeled as normalized 2d Gaussians.
 """
 function plot_density(model::PyCall.PyObject; μ::Real=100, mesh::Integer=100, bzonemesh::Integer=20, σ=1/10, extent::Integer=5)
-    positions = [val.position[1:2] for (key, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
+    positions = [val.position[1:2] for (_, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
     println(positions)
     solver = pb_solver(model)
     density_vec = zeros(length(positions))
@@ -55,7 +55,7 @@ $(TYPEDSIGNATURES)
 Plots the spin polarized density of a given Pybinding model
 """
 function plot_spinpolarizeddensity(model::PyCall.PyObject; μ::Real=100, mesh::Integer=100, bzonemesh::Integer=20, σ=1/10, extent::Integer=5)
-    positions1 = [val.position[1:2] for (key, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
+    positions1 = [val.position[1:2] for (_, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
     positions = similar(positions1, 0)
     for pos in positions1
         push!(positions, pos, pos)
@@ -91,7 +91,4 @@ function plot_spinpolarizeddensity(model::PyCall.PyObject; μ::Real=100, mesh::I
         end
     end
     display(Plots.heatmap(transpose(density_arraydn-density_arrayup)))
-    #a = Plots.heatmap(transpose(density_arraydn))
-    #b = Plots.heatmap(transpose(density_arrayup))
-    #display(Plots.plot(a, b, size=(1000, 500)))
 end

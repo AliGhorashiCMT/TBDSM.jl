@@ -22,7 +22,7 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function graphene_impol(qx::Real, qy::Real, μ::Real;mesh::Int=10, histogram_width::Real=100)
+function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, histogram_width::Real=100)
     qx = qx*10
     qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*30)
@@ -30,31 +30,31 @@ function graphene_impol(qx::Real, qy::Real, μ::Real;mesh::Int=10, histogram_wid
     bzone_area = abs(cross(b1, b2)[3])/100 ## Brillouin zone area in inverse angstrom squared
     graphene_mod = pb_model(pb_graphene.monolayer(), pb.translational_symmetry())
     graphene_solver = pb_solver(graphene_mod)
-    for xiter in 1:mesh
-        for yiter in 1:mesh
-            kx, ky = xiter/mesh*b1[1] + yiter/mesh*b2[1], xiter/mesh*b1[2] + yiter/mesh*b2[2]
-            graphene_solver.set_wave_vector([kx, ky])
-            Ednk, Eupk = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
-            vecdnk, vecupk = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
-            graphene_solver.set_wave_vector([kx, ky]+[qx, qy])
-            Ednkpluq, Eupkplusq = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
-            vecdnkplusq, vecupkplusq = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
-            overlap1 = abs(sum(conj(vecupkplusq).*vecdnk))^2
-            overlap2 = abs(sum(conj(vecupkplusq).*vecupk))^2
-            ω = Eupkplusq - Ednk
-            f2 = heaviside(μ-Eupkplusq)
-            f1 = heaviside(μ-Ednk)
-            im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 2/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area
-            ω = Eupkplusq - Eupk
-            f1 = heaviside(μ-Eupk)
-            if ω > 0
-                im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 2/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area
-            end            
-        end
+    for (xiter, yiter) in Tuple.(CartesianIndices(rand(mesh, mesh)))
+        kx, ky = xiter/mesh*b1[1] + yiter/mesh*b2[1], xiter/mesh*b1[2] + yiter/mesh*b2[2]
+        graphene_solver.set_wave_vector([kx, ky])
+        Ednk, Eupk = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
+        vecdnk, vecupk = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
+        graphene_solver.set_wave_vector([kx, ky]+[qx, qy])
+        Ednkpluq, Eupkplusq = graphene_solver.eigenvalues[1], graphene_solver.eigenvalues[2]
+        vecdnkplusq, vecupkplusq = graphene_solver.eigenvectors[:, 1], graphene_solver.eigenvectors[:, 2]
+        overlap1 = abs(sum(conj(vecupkplusq).*vecdnk))^2
+        overlap2 = abs(sum(conj(vecupkplusq).*vecupk))^2
+        ω = Eupkplusq - Ednk
+        f2 = heaviside(μ-Eupkplusq)
+        f1 = heaviside(μ-Ednk)
+        im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 2/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area
+        ω = Eupkplusq - Eupk
+        f1 = heaviside(μ-Eupk)
+        ω > 0 && (im_pols[round(Int, ω*histogram_width+1)] +=  2/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area)
     end
     return im_pols
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+"""
 function levitov_tbgraphene_impol(qx::Real, qy::Real; μ::Real=1.81e-3, mesh::Int=10, histogram_width::Real=10000)
     qx = qx*10
     qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
@@ -63,32 +63,23 @@ function levitov_tbgraphene_impol(qx::Real, qy::Real; μ::Real=1.81e-3, mesh::In
     bzone_area = abs(cross(b1, b2)[3])/100 ## Brillouin zone area in inverse angstrom squared
     tbgraphene_mod = pb_model(levitov_tbg_model(), pb.translational_symmetry())
     tbgraphene_solver = pb_solver(tbgraphene_mod)
-    for xiter in 1:mesh
-        for yiter in 1:mesh
-            kx, ky = xiter/mesh*b1[1] + yiter/mesh*b2[1], xiter/mesh*b1[2] + yiter/mesh*b2[2]
-            tbgraphene_solver.set_wave_vector([kx, ky])
-            Ednk, Eupk = tbgraphene_solver.eigenvalues[1], tbgraphene_solver.eigenvalues[2]
-            vecdnk, vecupk = tbgraphene_solver.eigenvectors[:, 1], tbgraphene_solver.eigenvectors[:, 2]
-
-            tbgraphene_solver.set_wave_vector([kx, ky]+[qx, qy])
-            Ednkpluq, Eupkplusq = tbgraphene_solver.eigenvalues[1], tbgraphene_solver.eigenvalues[2]
-
-            vecdnkplusq, vecupkplusq = tbgraphene_solver.eigenvectors[:, 1], tbgraphene_solver.eigenvectors[:, 2]
-
-            overlap1 = abs(sum(conj(vecupkplusq).*vecdnk))^2
-            overlap2 = abs(sum(conj(vecupkplusq).*vecupk))^2
-
-            ω = Eupkplusq - Ednk
-            f2 = heaviside(μ-Eupkplusq)
-            f1 = heaviside(μ-Ednk)
-            im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 4/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area
-
-            ω = Eupkplusq - Eupk
-            f1 = heaviside(μ-Eupk)
-            if ω > 0
-                im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 4/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area
-            end            
-        end
+    for (xiter, yiter) in Tuple.(CartesianIndices(rand(mesh, mesh)))
+        kx, ky = xiter/mesh*b1[1] + yiter/mesh*b2[1], xiter/mesh*b1[2] + yiter/mesh*b2[2]
+        tbgraphene_solver.set_wave_vector([kx, ky])
+        Ednk, Eupk = tbgraphene_solver.eigenvalues[1], tbgraphene_solver.eigenvalues[2]
+        vecdnk, vecupk = tbgraphene_solver.eigenvectors[:, 1], tbgraphene_solver.eigenvectors[:, 2]
+        tbgraphene_solver.set_wave_vector([kx, ky]+[qx, qy])
+        Ednkpluq, Eupkplusq = tbgraphene_solver.eigenvalues[1], tbgraphene_solver.eigenvalues[2]
+        vecdnkplusq, vecupkplusq = tbgraphene_solver.eigenvectors[:, 1], tbgraphene_solver.eigenvectors[:, 2]
+        overlap1 = abs(sum(conj(vecupkplusq).*vecdnk))^2
+        overlap2 = abs(sum(conj(vecupkplusq).*vecupk))^2
+        ω = Eupkplusq - Ednk
+        f2 = heaviside(μ-Eupkplusq)
+        f1 = heaviside(μ-Ednk)
+        im_pols[round(Int, ω*histogram_width+1)] = im_pols[round(Int, ω*histogram_width+1)] + 4/(2π)^2*π*histogram_width*(f2-f1)*overlap1*(1/mesh)^2*bzone_area
+        ω = Eupkplusq - Eupk
+        f1 = heaviside(μ-Eupk)
+        ω > 0 && (im_pols[round(Int, ω*histogram_width+1)] += 4/(2π)^2*π*histogram_width*(f2-f1)*overlap2*(1/mesh)^2*bzone_area)
     end
     return im_pols
 end

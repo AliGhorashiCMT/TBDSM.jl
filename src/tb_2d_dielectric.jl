@@ -2,7 +2,9 @@
 $(TYPEDSIGNATURES)
 
 """
-function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Integer=2, histogram_width::Real = 10, mesh::Int=10, offset::Vector{<:Real}=[0, 0], subsampling::Real=1)
+function impol_2d(qx::Real, qy::Real, μ::Real, lat::PyCall.PyObject; spin::Integer=2, histogram_width::Real = 10, 
+    mesh::Int=10, offset::Vector{<:Real}=[0, 0], subsampling::Real=1)
+    
     qx = qx*10 
     qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*30)
