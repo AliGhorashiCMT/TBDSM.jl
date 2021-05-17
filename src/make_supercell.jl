@@ -2,44 +2,35 @@
 $(TYPEDSIGNATURES)
 """
 function make_supercell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, cell_mult::Vector{<:Integer}, d::Real )
-    plt.close()
     newvecs = lat_vectors.*cell_mult
     println(newvecs[1])
     lat = pb_lattice(newvecs...) # pybinding lattice with superlattice vectors
-    for x in 0:cell_mult[1]-1
-        for y in 0:cell_mult[2]-1
-            for (index, sublattice) in enumerate(sublattices)
-                try
-                lat.add_sublattices(("$(sublattice[1])$(index)$(x)$(y)", sum(lat_vectors.*[x, y])+sublattice[2] ))
-                catch
-                    println("exception")
-                end
+    for (x, y) in Tuple.(CartesianIndices(rand(cell_mult...)))
+        for (index, sublattice) in enumerate(sublattices)
+            try
+            lat.add_sublattices(("$(sublattice[1])$(index)$(x-1)$(y-1)", sum(lat_vectors.*[x, y])+sublattice[2] ))
+            catch
+                println("exception")
             end
         end
     end
     for (index1, sublattice1) in enumerate(sublattices)
-    for x1 in 0:cell_mult[1]-1
-        for y1 in 0:cell_mult[2]-1
+        for (x1, y1) in Tuple.(CartesianIndices(rand(cell_mult...)))
             for  (index2, sublattice2) in enumerate(sublattices)
-            sublatdistance = sublattice2[2] - sublattice1[2]
-            for x2 in 0:cell_mult[1]-1
-                for y2 in 0:cell_mult[2]-1  
-                    for supercellx in -1:1
-                        for supercelly in -1:1  
-                            try    
-                                distsquared = sum((lat_vectors[1]*(x2-x1) + lat_vectors[2]*(y2-y1) + newvecs[1]*supercellx + newvecs[2]*supercelly + sublatdistance).^2)
-                                distsquared ≈ d^2 ? lat.add_hoppings(([supercellx, supercelly], "$(sublattice1[1])$(index1)$(x1)$(y1)", "$(sublattice2[1])$(index2)$(x2)$(y2)", 1)) : nothing
-                            catch e
-                            end
+                sublatdistance = sublattice2[2] - sublattice1[2]
+                for (x2, y2) in Tuple.(CartesianIndices(rand(cell_mult...)))
+                    for (supercellx, supercelly) in Tuple.(CartesianIndices(rand(2, 2)))
+                        try    
+                            distsquared = sum((lat_vectors[1]*(x2-x1) + lat_vectors[2]*(y2-y1) + newvecs[1]*(supercellx-1) + newvecs[2]*(supercelly-1) + sublatdistance).^2)
+                            distsquared ≈ d^2 && lat.add_hoppings(([supercellx-1, supercelly-1], "$(sublattice1[1])$(index1)$(x1-1)$(y1-1)", "$(sublattice2[1])$(index2)$(x2-1)$(y2-1)", 1)) 
+                        catch 
                         end
                     end
                 end
             end
         end
     end
-    end
-    end
-    return pb_model(lat, pb.translational_symmetry())
+    return pb_model(lat, pb.translational_symmetry()), lat
 end
 
 """
@@ -52,9 +43,9 @@ function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     newvecs = lat_vectors.*cell_mult
     println(newvecs[1])
     lat = pb_lattice(newvecs...) # pybinding lattice with superlattice vectors
-    for (x1, y1) in Tuple.(CartesianIndices(rand(cell_mult[1], cell_mult[2])))
+    for (x1, y1) in Tuple.(CartesianIndices(rand(cell_mult...)))
         x, y = x1-1, y1-1
-        for (index, sublattice) in enumerate(sublattices)
+        for (_, sublattice) in enumerate(sublattices)
             try
                 lat.add_sublattices(("$(sublattice[1])$(x)$(y)", sum(lat_vectors.*[x, y])+sublattice[2]))
             catch
@@ -64,7 +55,7 @@ function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     end
     totalnumhops = 0
     for (index1, sublattice1) in enumerate(sublattices)
-        for (x2, y2) in Tuple.(CartesianIndices(rand(cell_mult[1], cell_mult[2])))
+        for (x2, y2) in Tuple.(CartesianIndices(rand(cell_mult...)))
             x1, y1 = x2-1, y2-1
             for hop in hops
                 hop[1] == index1 || continue
@@ -86,7 +77,10 @@ function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     return supermodel
 end
 
-function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, defectenergy::Real, defecthop::Real )
+function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}},
+    sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, 
+    defectenergy::Real, defecthop::Real )
+
     @assert length(sublattices) == length(sublatonsite)
     plt.close()
     newvecs = lat_vectors.*cell_mult

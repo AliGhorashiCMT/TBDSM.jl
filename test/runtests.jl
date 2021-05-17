@@ -119,3 +119,16 @@ end
     end
 end
 
+@testset "Supercell Tests" begin
+    lattvecs =  [[2.494153162899183, 0.0], [-1.2470765814495914, 2.1599999999999997]]
+    sublattices =  [("A", [0.0, -0.72]), ("B", [0.0, 0.72])]
+    @test length(make_supercell(lattvecs, sublattices, [2, 2], 1.44)[2].sublattices) == 8 
+    @test length(make_supercell(lattvecs, sublattices, [3, 3], 1.44)[2].sublattices) == 18 
+    @test length(make_supercell(lattvecs, sublattices, [4, 4], 1.44)[2].sublattices) == 32 
+    @test length(make_supercell(lattvecs, sublattices, [6, 6], 1.44)[2].sublattices) == 72 
+
+    supermodel = make_defectcell([[1, 0], [1/2, sqrt(3)/2]],[("C1", [0, -1/(2*sqrt(3))]), ("C2", [0, 1/(2*sqrt(3))])], 
+    [-3, 5], [6, 6], [(1, 2, [0, 0], -3), (1, 2, [1, -1], -3), (1, 2, [0, -1], -3)], -1, 20)
+    @test length(supermodel.lattice.sublattices) == 72
+end
+
