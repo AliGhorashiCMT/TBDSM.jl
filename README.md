@@ -22,4 +22,4 @@ julia> using tb_dsm
 [ci-status-url]:   https://github.com/AliGhorashiCMT/TBDSM.jl/actions
 
 [codecov-url]: https://app.codecov.io/gh/AliGhorashiCMT/TBDSM.jl
-[codecov-img]: https://codecov.io/gh/TBDSM/branch/master/graph/badge.svg
+[codecov-img]: https://codecov.io/gh/TBDSM.jl/branch/master/graph/badge.svg
