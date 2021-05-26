@@ -51,7 +51,7 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Int=10, offset::Vector{Float64}=[-17.03098, 0],
+function graphene_impol(qx::Real, qy::Real, μ::Real; mesh::Integer=10, offset::Vector{Float64}=[-17.03098, 0],
     histogram_width::Real=100, subsampling::Integer=3)
     qx *= 10
     qy *= 10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
@@ -86,7 +86,7 @@ end
 $(TYPEDSIGNATURES)
 
 """
-function levitov_tbgraphene_impol(qx::Real, qy::Real; μ::Real=1.81e-3, mesh::Int=10, histogram_width::Real=10000)
+function levitov_tbgraphene_impol(qx::Real, qy::Real; μ::Real=1.81e-3, mesh::Integer=10, histogram_width::Real=10000)
     qx = qx*10
     qy = qy*10 ##The user is expected to give wavevectors in inverse angstrom so this converts to inverse nanometers
     im_pols = zeros(histogram_width*1)

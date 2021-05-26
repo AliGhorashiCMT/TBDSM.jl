@@ -1,7 +1,7 @@
 """
 $(TYPEDSIGNATURES)
 """
-function plot_wfn(model::PyCall.PyObject; orbital::Integer=1, mesh=10)
+function plot_wfn(model::PyCall.PyObject; orbital::Integer=1, mesh::Integer=10)
     positions = [val.position[1:2] for (_, val) in sort(collect(model.lattice.sublattices), by=x->x[1])] #Need to sort dictionary by order in which sublattices were added
     println(positions)
     solver = pb_solver(model)
