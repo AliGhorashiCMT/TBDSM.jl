@@ -15,7 +15,7 @@ Compare a dft calculation from JDFTX with a tight binding calculation from PyBin
 
 """
 function compare_dft(dft_filebase::AbstractString, kpoints_file::AbstractString, model::PyCall.PyObject; 
-    nbands::Integer=72, dft_dir::String="./", minband::Integer=1, maxband::Integer=1, kwargs...)
+    nbands::Integer=72, dft_dir::AbstractString="./", minband::Integer=1, maxband::Integer=1, kwargs...)
     Plots.plot()
     kpoints = Vector{Vector{Float64}}()
     for line in readlines(kpoints_file)[3:end]
@@ -42,7 +42,7 @@ function compare_dft(dft_filebase::AbstractString, kpoints_file::AbstractString,
 end
 
 function compare_dft(dft_filebases::Vector{<:AbstractString}, kpoints_file::AbstractString, models::Vector{<:PyCall.PyObject}; 
-    nbands::Integer=72, dft_dir::String="./", minband::Integer=1, maxband::Integer=1, kwargs...)
+    nbands::Integer=72, dft_dir::AbstractString="./", minband::Integer=1, maxband::Integer=1, kwargs...)
 
     Plots.plot()
     for (dft_filebase, model) in zip(dft_filebases, models)
