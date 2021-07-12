@@ -81,8 +81,6 @@ end
     correct_length = 2π/13.4*2/sqrt(3)
     isapprox(sqrt(sum(b1.^2)), correct_length, atol=1e-3)
     isapprox(sqrt(sum(b2.^2)),  correct_length, atol=1e-3)
-
-
 end
 
 @testset "TMD" begin
