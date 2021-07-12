@@ -59,4 +59,6 @@ export dos, bands_overlayeddos, projecteddos, spindos
 include("compare_abinitio.jl")
 export compare_dft
 
+include("matrix_elements.jl")
+
 end # module

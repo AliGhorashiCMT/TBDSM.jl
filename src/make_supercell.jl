@@ -1,7 +1,7 @@
 """
 $(TYPEDSIGNATURES)
 """
-function make_supercell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, cell_mult::Vector{<:Integer}, d::Real )
+function make_supercell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:AbstractString, Vector{<:Real}}}, cell_mult::Vector{<:Integer}, d::Real )
     newvecs = lat_vectors.*cell_mult
     println(newvecs[1])
     lat = pb_lattice(newvecs...) # pybinding lattice with superlattice vectors
@@ -37,7 +37,7 @@ end
 $(TYPEDSIGNATURES)
 Faster version of make_supercell- explicitly finds supercell hoppings instead of relying on nearest-neighbor distances
 """
-function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, 
+function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:AbstractString, Vector{<:Real}}}, 
     cell_mult::Vector{<:Integer}, hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}}} )
     plt.close()
     newvecs = lat_vectors.*cell_mult
@@ -77,7 +77,7 @@ function make_supercell2(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     return supermodel
 end
 
-function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}},
+function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:AbstractString, Vector{<:Real}}},
     sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, 
     defectenergy::Real, defecthop::Real )
 
@@ -120,7 +120,7 @@ function make_defectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vec
     return supermodel
 end
 
-function make_hubbarddefectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, 
+function make_hubbarddefectcell(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:AbstractString, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, 
     hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, defectenergy::Real, defecthop::Real, U::Real)
     @assert length(sublattices) == length(sublatonsite)
     plt.close()
@@ -167,7 +167,7 @@ $(TYPEDSIGNATURES)
 Returns many defect cells using make_hubbarddefectcell. The idea is to be able to make many different 
 defect cells to fit to Ab Initio data.
 """
-function make_hubbarddefectcells(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsites::Vector{<:Vector{<:Real}}, cell_mult::Vector{<:Integer}, 
+function make_hubbarddefectcells(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:AbstractString, Vector{<:Real}}}, sublatonsites::Vector{<:Vector{<:Real}}, cell_mult::Vector{<:Integer}, 
     hopses::Vector{<:Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}}, defectenergies::Vector{<:Real}, defecthops::Vector{<:Real}, Us::Vector{<:Real})
     defectcells = PyCall.PyObject[] 
     for sublatonsite in sublatonsites
@@ -187,7 +187,7 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function make_hubbarddefectcells(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:String, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, 
+function make_hubbarddefectcells(lat_vectors::Vector{<:Vector{<:Real}}, sublattices::Vector{<:Tuple{<:AbstractString, Vector{<:Real}}}, sublatonsite::Vector{<:Real}, cell_mult::Vector{<:Integer}, 
     hops::Vector{<:Tuple{<:Integer, <:Integer, <:Vector{<:Integer}, <:Integer}}, defectenergies::Vector{<:Real}, defecthops::Vector{<:Real}, Us::Vector{<:Real})
 
     make_hubbarddefectcells(lat_vectors, sublattices, [sublatonsite], cell_mult, 

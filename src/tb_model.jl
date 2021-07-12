@@ -1,8 +1,8 @@
 """
 $(TYPEDSIGNATURES)
 """
-function make_lattice(a1::Vector{<:Real}, a2::Vector{<:Real}; sublattices::Union{Nothing, Vector{<:Tuple{String,Vector{<:T}}}} = nothing, 
-    hoppings::Union{Nothing, Vector{<:Tuple{Vector{<:Integer}, String, String, <:Real}}} = nothing ) where T
+function make_lattice(a1::Vector{<:Real}, a2::Vector{<:Real}; sublattices::Union{Nothing, Vector{<:Tuple{AbstractString,Vector{<:T}}}} = nothing, 
+    hoppings::Union{Nothing, Vector{<:Tuple{Vector{<:Integer}, AbstractString, AbstractString, <:Real}}} = nothing ) where T
     lat = pb_lattice(a1, a2)
     if sublattices isa Vector{<:Tuple{String, Vector{T}}} where T
         num_sublattices = length(sublattices)
@@ -11,7 +11,7 @@ function make_lattice(a1::Vector{<:Real}, a2::Vector{<:Real}; sublattices::Union
         end
     end
 
-    if hoppings isa Vector{<:Tuple{Vector{<:Integer},String,String, <:Real}}
+    if hoppings isa Vector{<:Tuple{Vector{<:Integer}, AbstractString, AbstractString, <:Real}}
         for hopping in hoppings
             lat.add_hoppings(hopping)
         end
